@@ -1,7 +1,63 @@
+{{#if errors}}
+      {{#each errors}}
+        <div class="alert alert-danger">{{msg}}</div>
+      {{/each}}
+{{/if}}
 here are the rooms<br>
-<a href="#">New room</a>
+
+<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
+	New room
+</button>
+
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="myModalLabel">Modal title</h4>
+			</div>
+			<div class="modal-body">
+				<form method="post" action="/rooms" id="newroom">
+					<div class="form-group">
+						<label>Room Name</label>
+						<input type="text" class="form-control" name="name" placeholder="Name">
+					</div>
+					<div class="form-group">
+						<label>Event</label>
+						<select class="form-control" name="event" form="newroom">
+							<option value="333">Rubik's Cube</option>
+							<option value="222">2x2x2 Cube</option>
+							<option value="444">4x4x4 Cube</option>
+							<option value="555">5x5x5 Cube</option>
+							<option value="666">6x6x6 Cube</option>
+							<option value="777">7x7x7 Cube</option>
+							<option value="333oh">3x3 One-Handed</option>
+							<option value="333bf">3x3 Blindfolded</option>
+							<option value="pyram">Pyraminx</option>
+							<option value="sq1">Square-1</option>
+							<option value="minx">Megaminx</option>
+							<option value="skewb">Skewb</option>
+							<option value="clock">Rubik's Clock</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<label>Password (Optional)</label>
+						<input type="password" class="form-control" name="password" placeholder="Password">
+					</div>
+					<button type="submit" class="btn btn-default">Submit</button>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-primary">Save changes</button>
+			</div>
+		</div>
+	</div>
+</div>
 {{#if rooms}}
-	{{#each rooms}}
-		{{msg}}
-	{{/each}}
+{{#each rooms}}
+{{msg}}
+{{/each}}
 {{/if}}
