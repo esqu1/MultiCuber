@@ -58,7 +58,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
 	secret: 'secret',
 	saveUninitialized: true,
-	resave: true
+	resave: true,
+	store: new session.MemoryStore({ reapInterval: 600 * 10 })
 }))
 
 // Passport
@@ -158,6 +159,18 @@ app.post('/rooms', (req, res) => {
 		Room.createRoom(newRoom, (err, room) => {
 			if (err) throw err;
 			id = room._id.valueOf();
+
+			var nsp = io.of('/rooms/' + id)
+			// nsp.on('connection', (socket) => {
+			// 	socket.join(id);
+			// 	console.log(id);
+			// 	io.to(id).emit('user join', req.user.username)
+
+			// 	socket.on('disconnection', (socket) => {
+			// 		delete socket;
+			// 		console.log('oh');
+			// 	})
+			// })
 			res.redirect('/rooms/' + id);
 		})
 	}
@@ -166,6 +179,15 @@ app.post('/rooms', (req, res) => {
 app.get('/rooms/:id', ensureAuthenticated, (req, res) => {
 	var id = req.params.id;
 	getRoomInfo(id, (r) => {
+		io.of('/rooms/' + id).on('connection', (socket) => {
+			socket.join(id);
+			console.log(id);
+			io.to(id).emit('user join', req.user.username)
+			socket.on('disconnection', (socket) => {
+				delete socket;
+				console.log('oh');
+			})
+		})
 		res.render('singleroom', {id: id, r: r})
 	});
 })
@@ -189,20 +211,20 @@ io.on('connection', (socket) => {
 		io.emit('chat ' + arr[0], arr[1], arr[2]);
 	});
 
-	socket.on('user connection', (data) => {
-		user = data[1];
-		currentRoom = data[0];
-		console.log('connected')
-		Room.addUserToRoom(data[0], data[1], (r) => {
-			io.emit('user ' + data[0], r.users);
-		});
-	});
-	socket.on('disconnection', () => {
-		console.log('disconnected')
-		Room.removeUserFromRoom(currentRoom, user, (r) => {
-			console.log(r);
-		})
-	})
+	// socket.on('user connection', (data) => {
+	// 	user = data[1];
+	// 	currentRoom = data[0];
+	// 	console.log('connected')
+	// 	Room.addUserToRoom(data[0], data[1], (r) => {
+	// 		io.emit('user ' + data[0], r.users);
+	// 	});
+	// });
+	// socket.on('disconnection', () => {
+	// 	console.log('disconnected')
+	// 	Room.removeUserFromRoom(currentRoom, user, (r) => {
+	// 		console.log(r);
+	// 	})
+	// })
 })
 
 server.listen(3000, () => {

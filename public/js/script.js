@@ -1,4 +1,4 @@
-var socket = io();
+var socket = io(window.location.pathname);
 $(document).ready(function(){
 	var username = '';
 	$.getJSON("/api/user_data", function(data) {
@@ -19,11 +19,14 @@ $(document).ready(function(){
 		$('#chat').append($('<li>').append('<b>' + username + '</b>: ' + msg.replace(/</g, "&lt;").replace(/>/g, "&gt;")));
 	});
 
-	socket.on('user ' + $('#room').val(), function(users) {
-		for (var i = 0; i < users.length; i++){
-			console.log(users[i])
-			$('#users').append($('<li>').append(users[i].username));
-		}
+	// socket.on('user ' + $('#room').val(), function(users) {
+	// 	for (var i = 0; i < users.length; i++){
+	// 		$('#users').append($('<li>').append(users[i].username));
+	// 	}
+	// })
+
+	socket.on('user join', (username) => {
+		$('#users').append($('<li>').append(username));
 	})
 });
 
