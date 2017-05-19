@@ -28,3 +28,10 @@ module.exports.createRoom = (newRoom, callback) => {
 		newRoom.save(callback);
 	}
 }
+
+module.exports.getAllRooms = (callback) => {
+	Room.find({}, {name: 1, event: 1, users: 1, _id: 1}, (err, docs) => {
+		if (err) throw err;
+		callback(docs);
+	})
+}

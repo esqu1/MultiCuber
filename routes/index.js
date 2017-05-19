@@ -32,7 +32,10 @@ router.get('/', (req, res) => {
 })
 
 router.get('/rooms', ensureAuthenticated, (req, res) => {
-	res.render('rooms');
+	Room.getAllRooms((r) => {
+		console.log(r)
+		res.render('rooms', {rooms: r});
+	})
 })
 
 router.post('/rooms', (req, res) => {
@@ -72,5 +75,16 @@ router.get('/rooms/:id', ensureAuthenticated, (req, res) => {
 		res.render('singleroom', {id: id, name: r.name})
 	});
 })
+
+router.get('/api/user_data', function(req, res) {
+	if (req.user === undefined) {
+		// The user is not logged in
+		res.json({});
+	} else {
+		res.json({
+			username: req.user.username
+		});
+	}
+});
 
 module.exports = router;

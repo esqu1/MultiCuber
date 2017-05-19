@@ -104,7 +104,7 @@ app.use('/users', users);
 
 io.on('connection', (socket) => {
 	socket.on('chat message', function(arr) {
-		io.emit('chat ' + arr[0], arr[1]);
+		io.emit('chat ' + arr[0], arr[1], arr[2]);
 	});
 })
 
