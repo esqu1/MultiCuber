@@ -1,8 +1,9 @@
-$(document).ready(function(){	
-	var socket = io();
+var socket = io();
+$(document).ready(function(){
 	var username = '';
 	$.getJSON("/api/user_data", function(data) {
 		username = data.username;
+		socket.emit('user connection', [$('#room').val(), username])
 	})
 	$('#myModal').on('shown.bs.modal', function () {
 		$('#myInput').focus()
@@ -16,5 +17,16 @@ $(document).ready(function(){
 	})
 	socket.on('chat ' + $('#room').val(), function(username, msg) {
 		$('#chat').append($('<li>').append('<b>' + username + '</b>: ' + msg.replace(/</g, "&lt;").replace(/>/g, "&gt;")));
+	});
+
+	socket.on('user ' + $('#room').val(), function(users) {
+		for (var i = 0; i < users.length; i++){
+			console.log(users[i])
+			$('#users').append($('<li>').append(users[i].username));
+		}
 	})
 });
+
+window.onbeforeunload = function(e) {
+	socket.emit('disconnection')
+}

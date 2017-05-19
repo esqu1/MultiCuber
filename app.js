@@ -17,9 +17,29 @@ var db = mongoose.connection;
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
-var routes = require('./routes/index');
+//var routes = require('./routes/index');
 var users = require('./routes/users');
 var User = require('./models/user');
+var Room = require('./models/room');
+
+var ensureAuthenticated = (req, res, next) => {
+	if (req.isAuthenticated()) {
+		return next();
+	} else {
+		req.flash('error_msg', 'You are not logged in');
+		res.redirect('/users/login');
+	}
+}
+
+var getRoomInfo = (id, callback) => {
+	mongo.MongoClient.connect(url, (err, db) => {
+		var collection = db.collection('rooms');
+		var room = collection.findOne({_id: mongo.ObjectID(id.toString())}, (err, room) => {
+			if (err) throw err;
+			callback(room);
+		});
+	})
+}
 
 // View Engine
 app.set('views', path.join(__dirname, 'views'));
@@ -99,13 +119,90 @@ app.use((req, res, next) => {
 	next();
 })
 
-app.use('/', routes);
+//app.use('/', routes);
 app.use('/users', users);
 
+app.get('/', (req, res) => {
+	res.render('index')
+})
+
+app.get('/rooms', ensureAuthenticated, (req, res) => {
+	Room.getAllRooms((r) => {
+		res.render('rooms', {rooms: r});
+	})
+})
+
+app.post('/rooms', (req, res) => {
+	var name = req.body.name;
+	var event = req.body.event;
+	var password = req.body.password;
+
+	req.checkBody('name', 'Name is required').notEmpty();
+
+	var errors = req.validationErrors();
+
+	if (errors) {
+		res.render('rooms', {
+			errors: errors
+		})
+	} else {
+		var newRoom = new Room({
+			name: name,
+			event: event,
+			password: password,
+			users: [{username: req.user.username}]
+		})
+
+		let id = '';
+
+		Room.createRoom(newRoom, (err, room) => {
+			if (err) throw err;
+			id = room._id.valueOf();
+			res.redirect('/rooms/' + id);
+		})
+	}
+})
+
+app.get('/rooms/:id', ensureAuthenticated, (req, res) => {
+	var id = req.params.id;
+	getRoomInfo(id, (r) => {
+		res.render('singleroom', {id: id, r: r})
+	});
+})
+
+app.get('/api/user_data', function(req, res) {
+	if (req.user === undefined) {
+		// The user is not logged in
+		res.json({});
+	} else {
+		res.json({
+			username: req.user.username
+		});
+	}
+});
+
+
+
 io.on('connection', (socket) => {
-	socket.on('chat message', function(arr) {
+	var user, currentRoom;
+	socket.on('chat message', (arr) => {
 		io.emit('chat ' + arr[0], arr[1], arr[2]);
 	});
+
+	socket.on('user connection', (data) => {
+		user = data[1];
+		currentRoom = data[0];
+		console.log('connected')
+		Room.addUserToRoom(data[0], data[1], (r) => {
+			io.emit('user ' + data[0], r.users);
+		});
+	});
+	socket.on('disconnection', () => {
+		console.log('disconnected')
+		Room.removeUserFromRoom(currentRoom, user, (r) => {
+			console.log(r);
+		})
+	})
 })
 
 server.listen(3000, () => {
