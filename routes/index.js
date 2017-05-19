@@ -69,7 +69,6 @@ router.post('/rooms', (req, res) => {
 router.get('/rooms/:id', ensureAuthenticated, (req, res) => {
 	var id = req.params.id;
 	getRoomInfo(id, (r) => {
-		console.log('blah: ' + r)
 		res.render('singleroom', {id: id, name: r.name})
 	});
 })

@@ -103,7 +103,9 @@ app.use('/', routes);
 app.use('/users', users);
 
 io.on('connection', (socket) => {
-	console.log('lit')
+	socket.on('chat message', function(arr) {
+		io.emit('chat ' + arr[0], arr[1]);
+	});
 })
 
 server.listen(3000, () => {

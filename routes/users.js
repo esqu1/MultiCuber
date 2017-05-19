@@ -53,7 +53,6 @@ router.post('/register', (req, res) => {
 
 		User.createUser(newUser, (error, user) => {
 			if (error) throw error;
-			console.log(user);
 		});
 
 		req.flash('success_msg', 'You are registered.');
