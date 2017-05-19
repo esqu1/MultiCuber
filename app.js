@@ -1,4 +1,5 @@
 var express = require('express');
+var app = express();
 var path = require('path');
 var cookieParser = require('cookie-parser')
 var bodyParser = require('body-parser')
@@ -10,14 +11,15 @@ var passport = require('passport')
 var LocalStrategy = require('passport-local').Strategy;
 var mongo = require('mongodb');
 var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost:27017/test')
+let url = 'mongodb://localhost:27017/test';
+mongoose.connect(url);
 var db = mongoose.connection;
+var server = require('http').Server(app);
+var io = require('socket.io')(server);
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
-
-// Initialize
-var app = express();
+var User = require('./models/user');
 
 // View Engine
 app.set('views', path.join(__dirname, 'views'));
@@ -49,7 +51,7 @@ app.use(expressValidator({
 		var namespace = param.split('.')
 		, root    = namespace.shift()
 		, formParam = root;
- 		while(namespace.length) {
+		while(namespace.length) {
 			formParam += '[' + namespace.shift() + ']';
 		}
 		return {
@@ -57,6 +59,32 @@ app.use(expressValidator({
 			msg   : msg,
 			value : value
 		};
+	},
+	customValidators: { // code from: https://maketips.net/tip/161/validate-username-available-using-express-validator
+		userTaken: (value) => {
+			return new Promise((resolve, reject) => {
+				User.findOne({ username: value }, (err, user) => {
+					if (err) throw err;
+					if(user == null) {
+						resolve();
+					} else {
+						reject();
+					}
+				});
+			});
+		},
+		emailTaken: (value) => {
+			return new Promise((resolve, reject) => {
+				User.findOne({ email: value }, (err, email) => {
+					if (err) throw err;
+					if(email == null) {
+						resolve();
+					} else {
+						reject();
+					}
+				});
+			});
+		}
 	}
 }));
 
@@ -74,8 +102,10 @@ app.use((req, res, next) => {
 app.use('/', routes);
 app.use('/users', users);
 
-app.set('port', (process.env.PORT || 3000));
+io.on('connection', (socket) => {
+	console.log('lit')
+})
 
-app.listen(app.get('port'), function(){
-	console.log('Server started on port '+app.get('port'));
+server.listen(3000, () => {
+	console.log('listening on 3000')
 });

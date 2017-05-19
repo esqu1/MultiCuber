@@ -61,7 +61,6 @@ router.post('/rooms', (req, res) => {
 		Room.createRoom(newRoom, (err, room) => {
 			if (err) throw err;
 			id = room._id.valueOf();
-
 			res.redirect('/rooms/' + id);
 		})
 	}
