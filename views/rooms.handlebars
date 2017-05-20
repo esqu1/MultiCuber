@@ -8,7 +8,7 @@ here are the rooms<br>
 <ol>
 {{#if rooms}}
 	{{#each rooms}}
-		<li><a href="/rooms/{{_id}}"><b>{{name}}</b>: {{event}}</a></li>
+		<li><a href="/rooms/play/?id={{_id}}"><b>{{name}}</b>: {{event}}</a></li>
 	{{/each}}
 {{/if}}
 </ol>

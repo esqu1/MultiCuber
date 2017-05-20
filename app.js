@@ -171,23 +171,28 @@ app.post('/rooms', (req, res) => {
 			// 		console.log('oh');
 			// 	})
 			// })
-			res.redirect('/rooms/' + id);
+			res.redirect('/rooms/play/' + id);
 		})
 	}
 })
 
-app.get('/rooms/:id', ensureAuthenticated, (req, res) => {
-	var id = req.params.id;
+io.of('/rooms/play/').on('connection', (socket) => {
+	var username, roomID;
+	socket.on('user connection', (data) => {
+		roomID = data[0]; username = data[1]
+		socket.join(roomID);
+		console.log(roomID);
+		io.to(roomID).emit('user join', username)
+	})	
+	socket.on('disconnection', (socket) => {
+		delete socket;
+		console.log('oh');
+	})
+})
+
+app.get('/rooms/play/', ensureAuthenticated, (req, res) => {
+	var id = req.query.id;
 	getRoomInfo(id, (r) => {
-		io.of('/rooms/' + id).on('connection', (socket) => {
-			socket.join(id);
-			console.log(id);
-			io.to(id).emit('user join', req.user.username)
-			socket.on('disconnection', (socket) => {
-				delete socket;
-				console.log('oh');
-			})
-		})
 		res.render('singleroom', {id: id, r: r})
 	});
 })
