@@ -1,4 +1,4 @@
-var socket = io(window.location.pathname);
+var socket = io('/rooms/play/');
 $(document).ready(function(){
 	var username = '';
 	$.getJSON("/api/user_data", function(data) {
