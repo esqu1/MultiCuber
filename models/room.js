@@ -42,14 +42,14 @@ module.exports.getAllRooms = (callback) => {
 }
 
 module.exports.addUserToRoom = (r, u, callback) => {
-	Room.findOneAndUpdate({_id : mongo.ObjectID(r.toString())}, {$push: {users: {username: u}}}, (err, room) => {
+	Room.findOneAndUpdate({_id : mongo.ObjectID(r.toString())}, {$push: {users: {username: u}}}, {new: true}, (err, room) => {
 		if (err) throw err;
 		callback(room);
 	})
 }
 
 module.exports.removeUserFromRoom = (r, u, callback) => {
-	Room.findOneAndUpdate({_id : mongo.ObjectID(r.toString())}, {$pull: {users: {username: u}}}, (err, room) => {
+	Room.findOneAndUpdate({_id : mongo.ObjectID(r.toString())}, {$pull: {users: {username: u}}}, {new: true}, (err, room) => {
 		if (err) throw err;
 		callback(room);
 	})

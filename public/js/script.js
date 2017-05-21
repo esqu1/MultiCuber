@@ -15,19 +15,21 @@ $(document).ready(function(){
 		}
 		return false;
 	})
-	socket.on('chat ' + $('#room').val(), function(username, msg) {
+	socket.on('chat', function(username, msg) {
 		$('#chat').append($('<li>').append('<b>' + username + '</b>: ' + msg.replace(/</g, "&lt;").replace(/>/g, "&gt;")));
 	});
 
-	// socket.on('user ' + $('#room').val(), function(users) {
-	// 	for (var i = 0; i < users.length; i++){
-	// 		$('#users').append($('<li>').append(users[i].username));
-	// 	}
-	// })
-
-	socket.on('user join', (username) => {
-		$('#users').append($('<li>').append(username));
+	socket.on('user join', function(users) {
+		console.log(users)
+		for (var i = 0; i < users.length; i++){
+			$('#users').append($('<li>').append(users[i].username));
+		}
 	})
+
+	// socket.on('user join', (username) => {
+	// 	$('#users').append($('<li>').append(username));
+	// 	$('#chat').append($('<li>').append('<i>' + username + ' has joined the room.</i>'));
+	// })
 });
 
 window.onbeforeunload = function(e) {

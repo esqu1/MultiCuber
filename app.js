@@ -169,19 +169,21 @@ nsp.on('connection', (socket) => {
 		roomID = data[0]; username = data[1];
 		socket.join(roomID, (err) => {
 			if (err) throw err;
-			Room.addUserToRoom(roomID, username, (r) => {				
-				nsp.in(roomID).emit('user join', username)
+			console.log('connected')
+			Room.addUserToRoom(roomID, username, (r) => {
+				nsp.in(roomID).emit('user join', r.users)
 			})
 		})
 	})	
 	socket.on('disconnection', (socket) => {
 		delete socket;
+		console.log('disconnected')
 		Room.removeUserFromRoom(roomID, username, (r) => {				
 			nsp.in(roomID).emit('user leave', username)
 		})
 	})
 	socket.on('chat message', (arr) => {
-		nsp.in(roomID).emit('chat ' + arr[0], arr[1], arr[2]);
+		nsp.in(roomID).emit('chat', arr[1], arr[2]);
 	});
 })
 
@@ -202,30 +204,6 @@ app.get('/api/user_data', function(req, res) {
 		});
 	}
 });
-
-
-
-io.on('connection', (socket) => {
-	var user, currentRoom;
-	// socket.on('chat message', (arr) => {
-	// 	io.emit('chat ' + arr[0], arr[1], arr[2]);
-	// });
-
-	// socket.on('user connection', (data) => {
-	// 	user = data[1];
-	// 	currentRoom = data[0];
-	// 	console.log('connected')
-	// 	Room.addUserToRoom(data[0], data[1], (r) => {
-	// 		io.emit('user ' + data[0], r.users);
-	// 	});
-	// });
-	// socket.on('disconnection', () => {
-	// 	console.log('disconnected')
-	// 	Room.removeUserFromRoom(currentRoom, user, (r) => {
-	// 		console.log(r);
-	// 	})
-	// })
-})
 
 server.listen(3000, () => {
 	console.log('listening on 3000')
