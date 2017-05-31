@@ -1,6 +1,8 @@
 <center><h1>{{r.name}}</h1></center>
 <h2>Users</h2>
-<ul id="users"></ul>
+<table class='table' id='userTimes'>
+	<tr></tr>
+</table>
 <hr>
 <ul id="chat"></ul>
 <form class="form-inline" id="chatform">
@@ -11,6 +13,16 @@
 		<input class="form-control" type="text" id="msg" autocomplete="off" placeholder="Write your message here...">
 	</div>
 	<button class="btn btn-default">Send</button>
+</form>
+<div id='timer'></div><br><br>
+<div id='choices'><a id='nopenalty' href='#'>No Penalty</a> | <a id='plus2' href='#'>+2</a> | <a id='dnf' href='#'>DNF</a></div>
+<div id='scramble'></div><br><br>
+
+<table id='times'>
+</table>
+
+<form id='ready'>
+<button class='btn btn-primary'>New Scramble</button>
 </form>
 
 <script src="/js/script.js"></script>
