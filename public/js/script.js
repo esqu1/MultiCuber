@@ -58,21 +58,20 @@ $(document).ready(function(){
 	socket.on('user join', function(u, userss) {
 		$('#users').empty();
 		users = userss;
-		console.log(users);
 		for (var i = 0; i < userss.length; i++){
 			$('#users').append($('<li>').append(userss[i].username));
 		}
 		$('#chat').append($('<li>').append(u + ' has joined the room.'))
-		$('#userTimes tr:first').append($('<th>').append(u));
+		$('#userTimes thead tr').append($('<th>').append(u));
 	})
 
-	socket.on('load page', function(times, newTimes) {
-
-		var userHeading = $('<th>')
+	socket.on('load page', function(times, newTimes, oldUsers) {
+		var userHeading = $('<tr>')
+		users = oldUsers;
 		for (var i = 0; i < users.length; i++) {
-			userHeading.append($('<td>').append(users[i].username));
+			userHeading.append($('<th>').append(users[i].username));
 		}
-		$('#userTimes').append(userHeading);
+		$('#userTimes thead').append(userHeading);
 		for (var j = 0; j < times.length; j++) {
 			var thisRow = [];
 			for (var k = 0; k < times[j].length; k++) {
@@ -86,6 +85,7 @@ $(document).ready(function(){
 				if(thisRow[l]) newRow.append($('<td>').append(thisRow[l]));
 				else newRow.append('<td></td>');
 			}
+			$('#userTimes tbody').append(newRow);
 		}
 	})
 
@@ -93,17 +93,18 @@ $(document).ready(function(){
 		$('#users').empty();
 		var position = 0;
 		for (var i = 0; i < users.length; i++) {
-			if (users[i] == u) {
+			if (users[i].username == u) {
 				position = i;
 			}
 		}
+		console.log(position);
 		users = userss;
 		for (var i = 0; i < userss.length; i++){
 			$('#users').append($('<li>').append(userss[i].username));
 		}
 		$('#chat').append($('<li>').append(u + ' has left the room.'))
-		$('#userTimes tr').each(function (index) {
-			$(this).find(':nth-child(' + position + ')').remove()
+		$('#userTimes thead tr').each(function (index) {
+			$(this).find(':nth-child(' + (position + 1) + ')').remove()
 		})
 	})
 

@@ -211,14 +211,14 @@ nsp.on('connection', (socket) => {
 			getRoomInfo(roomID, (room1) => {
 				if (room1.users.length == 0) {
 					Room.addUserToRoom(roomID, username, (r) => {
+						socket.emit('load page', r.times, r.currentTime, room1.users);
 						nsp.in(roomID).emit('user join', username, r.users);
-						socket.emit('load page', r.times, r.currentTime);
 						socket.emit('new host', username);
 					})
 				} else {
 					Room.addUserToRoom(roomID, username, (r) => {
+						socket.emit('load page', r.times, r.currentTime, room1.users);
 						nsp.in(roomID).emit('user join', username, r.users);
-						socket.emit('load page', r.times, r.currentTime);
 					})
 				}
 			})
