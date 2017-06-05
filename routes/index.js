@@ -16,62 +16,76 @@ var ensureAuthenticated = (req, res, next) => {
 	}
 }
 
-var getRoomInfo = (id, callback) => {
-	MongoClient.connect(url, (err, db) => {
-		var collection = db.collection('rooms');
-		var room = collection.findOne({_id: ObjectID(id.toString())}, (err, room) => {
-			if (err) throw err;
-			console.log(room);
-			callback(room);
-		});
-	})
-}
+// var getRoomInfo = (id, callback) => {
+// 	MongoClient.connect(url, (err, db) => {
+// 		var collection = db.collection('rooms');
+// 		var room = collection.findOne({_id: ObjectID(id.toString())}, (err, room) => {
+// 			if (err) throw err;
+// 			callback(room);
+// 		});
+// 	})
+// }
 
 router.get('/', (req, res) => {
 	res.render('index')
 })
 
-router.get('/rooms', ensureAuthenticated, (req, res) => {
-	res.render('rooms');
-})
+// router.get('/rooms', ensureAuthenticated, (req, res) => {
+// 	Room.getAllRooms((r) => {
+// 		res.render('rooms', {rooms: r});
+// 	})
+// })
 
-router.post('/rooms', (req, res) => {
-	var name = req.body.name;
-	var event = req.body.event;
-	var password = req.body.password;
+// router.post('/rooms', (req, res) => {
+// 	var name = req.body.name;
+// 	var event = req.body.event;
+// 	var password = req.body.password;
 
-	req.checkBody('name', 'Name is required').notEmpty();
+// 	req.checkBody('name', 'Name is required').notEmpty();
 
-	var errors = req.validationErrors();
+// 	var errors = req.validationErrors();
 
-	if (errors) {
-		res.render('rooms', {
-			errors: errors
-		})
-	} else {
-		var newRoom = new Room({
-			name: name,
-			event: event,
-			password: password,
-			users: [{username: req.user.username}]
-		})
+// 	if (errors) {
+// 		res.render('rooms', {
+// 			errors: errors
+// 		})
+// 	} else {
+// 		var newRoom = new Room({
+// 			name: name,
+// 			event: event,
+// 			password: password,
+// 			users: [{username: req.user.username}]
+// 		})
 
-		let id = '';
+// 		let id = '';
 
-		Room.createRoom(newRoom, (err, room) => {
-			if (err) throw err;
-			id = room._id.valueOf();
-			res.redirect('/rooms/' + id);
-		})
-	}
-})
+// 		Room.createRoom(newRoom, (err, room) => {
+// 			if (err) throw err;
+// 			id = room._id.valueOf();
+// 			res.redirect('/rooms/' + id);
+// 		})
+// 	}
+// })
 
-router.get('/rooms/:id', ensureAuthenticated, (req, res) => {
-	var id = req.params.id;
-	getRoomInfo(id, (r) => {
-		console.log('blah: ' + r)
-		res.render('singleroom', {id: id, name: r.name})
-	});
-})
+// router.get('/rooms/:id', ensureAuthenticated, (req, res) => {
+// 	var id = req.params.id;
+// 	getRoomInfo(id, (r) => {
+// 		res.render('singleroom', {id: id, r: r})
+// 	});
+// })
 
-module.exports = router;
+// router.get('/api/user_data', function(req, res) {
+// 	if (req.user === undefined) {
+// 		// The user is not logged in
+// 		res.json({});
+// 	} else {
+// 		res.json({
+// 			username: req.user.username
+// 		});
+// 	}
+// });
+
+module.exports = {
+	router:router,
+	ensureAuthenticated: ensureAuthenticated
+};
