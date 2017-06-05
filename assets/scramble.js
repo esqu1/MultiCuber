@@ -11,5 +11,54 @@ const scramblers = Object.assign({}, scramble_333.scramblers, scramble_sq1.scram
 
 
 var scramble333 = (callback) => {
-	callback(scramblers['333'].getRandomScramble().scramble_string);
+	callback(scramblers['333'].getRandomScramble());
+}
+
+var scramble222 = (callback) => {
+	callback(scramblers['222'].getRandomScramble());
+}
+
+var scramble444 = (callback) => {
+	callback(scramblers['444'].getRandomScramble());
+}
+
+var scramble555 = (callback) => {
+	callback(scramblers['555'].getRandomScramble());
+}
+
+var scramble666 = (callback) => {
+	callback(scramblers['666'].getRandomScramble());
+}
+
+var scramble777 = (callback) => {
+	callback(scramblers['777'].getRandomScramble());
+}
+
+var scrambleSq1 = (callback) => {
+	callback(scramblers['sq1'].getRandomScramble());
+}
+
+var scrambleClock = (callback) => {
+	callback(scramblers['clock'].getRandomScramble());
+}
+
+var scramblePyram = (callback) => {
+	callback(scramblers['pyram'].getRandomScramble());
+}
+
+var scrambleMinx = (callback) => {
+	callback(scramblers['minx'].getRandomScramble());
+}
+
+module.exports = {
+	scramble333: scramble333,
+	scramble222: scramble222,
+	scramble444: scramble444,
+	scramble555: scramble555,
+	scramble666: scramble666,
+	scramble777: scramble777,
+	scrambleSq1: scrambleSq1,
+	scrambleClock: scrambleClock,
+	scramblePyram: scramblePyram,
+	scrambleMinx: scrambleMinx,
 }
