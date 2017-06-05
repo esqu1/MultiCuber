@@ -9,6 +9,7 @@ var flash = require('connect-flash')
 var session = require('express-session')
 var passport = require('passport')
 var LocalStrategy = require('passport-local').Strategy;
+var scramble = require('./assets/scramble');
 var mongo = require('mongodb');
 var mongoose = require('mongoose');
 let url = 'mongodb://localhost:27017/test';
@@ -200,7 +201,7 @@ app.post('/rooms', (req, res) => {
 var nsp = io.of('/rooms/play/')
 
 nsp.on('connection', (socket) => {
-	var username, roomID = 0;
+	var username, roomID = 0, event;
 
 	// when user connects to a room
 	socket.on('user connection', (data) => {
@@ -209,6 +210,7 @@ nsp.on('connection', (socket) => {
 			if (err) throw err;
 			console.log('connected')
 			getRoomInfo(roomID, (room1) => {
+				event = room1.event;
 				if (room1.users.length == 0) {
 					Room.addUserToRoom(roomID, username, (r) => {
 						socket.emit('load page', r.times, r.currentTime, r.users);
@@ -254,16 +256,18 @@ nsp.on('connection', (socket) => {
 	});
 
 	socket.on('ready', (host) => {
-		var scramble = 'F U\' B2 L U\' B\' D\' R2 F\' L2 U B\' R U L2 D2 B\' U D\' F2';
-		nsp.in(roomID).emit('new scramble', scramble)
-		Room.updateNumUsers(roomID, (r) => {
-			console.log(r);
-			if(r.currentTime.length != 0) {
-				Room.updateTimeDatabase(roomID, (r2) => {
-					nsp.in(roomID).emit('times', r.currentTime);
-				})
-			}
-		})
+		scramble.scramble(event, (s) => {
+			nsp.in(roomID).emit('new scramble', s.scramble_string)
+			Room.updateNumUsers(roomID, (r) => {
+				console.log(r);
+				if(r.currentTime.length != 0) {
+					Room.updateTimeDatabase(roomID, (r2) => {
+						nsp.in(roomID).emit('times', r.currentTime);
+					})
+				}
+			})
+		});
+		
 	})
 
 	socket.on('new time', (username, time, penalty) => {
@@ -309,4 +313,5 @@ app.get('/api/user_data', function(req, res) {
 
 server.listen(3000, () => {
 	console.log('listening on 3000')
+	scramble.initialize();
 });

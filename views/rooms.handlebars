@@ -8,7 +8,11 @@ here are the rooms<br>
 <ol>
 {{#if rooms}}
 	{{#each rooms}}
+		{{#if password}}
 		<li><a href="/rooms/play/?id={{_id}}"><b>{{name}}</b>: {{event}}</a></li>
+		{{else}}
+		<li><a class="pass" data-target="#passwordModal" href="/rooms/play/?id={{_id}}"><b>{{name}}</b>: {{event}}</a></li>
+		{{/if}}
 	{{/each}}
 {{/if}}
 </ol>
@@ -17,6 +21,31 @@ here are the rooms<br>
 	New room
 </button>
 
+
+<div class="modal fade" id="passwordModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="myModalLabel">Modal title</h4>
+			</div>
+			<div class="modal-body">
+				<form method="post" action="/rooms" id="newroom">
+					This room requires a password in order to enter.
+					<div class="form-group">
+						<label>Password</label>
+						<input type="password" class="form-control" name="name" placeholder="Name">
+					</div>
+					<button type="submit" class="btn btn-default">Submit</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</form>
+			</div>
+			<div class="modal-footer">
+				
+			</div>
+		</div>
+	</div>
+</div>
 
 <!-- Modal -->
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
@@ -54,18 +83,10 @@ here are the rooms<br>
 						<label>Password (Optional)</label>
 						<input type="password" class="form-control" name="password" placeholder="Password">
 					</div>
-					<button type="submit" class="btn btn-default">Submit</button>
+					<button type="submit" class="btn btn-primary">Submit</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
 				</form>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-				<button type="button" class="btn btn-primary">Save changes</button>
 			</div>
 		</div>
 	</div>
 </div>
-{{#if rooms}}
-{{#each rooms}}
-{{msg}}
-{{/each}}
-{{/if}}

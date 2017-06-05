@@ -1,14 +1,15 @@
-var scramble_333 = require('../public/jsss/scramble_333.js');
-var scramble_sq1 = require('../public/jsss/scramble_sq1.js');
-var scramble_222 = require('../public/jsss/scramble_222.js');
-var scramble_NNN = require('../public/jsss/scramble_NNN.js');
-var scramble_minx = require('../public/jsss/scramble_minx.js');
-var scramble_pyram = require('../public/jsss/scramble_pyram.js');
-var scramble_clock = require('../public/jsss/scramble_clock.js');
+var scramble_333 = require('./jsss/scramble_333.js');
+var scramble_sq1 = require('./jsss/scramble_sq1.js');
+var scramble_222 = require('./jsss/scramble_222.js');
+var scramble_NNN = require('./jsss/scramble_NNN.js');
+var scramble_minx = require('./jsss/scramble_minx.js');
+var scramble_pyram = require('./jsss/scramble_pyram.js');
+var scramble_clock = require('./jsss/scramble_clock.js');
 
 const scramblers = Object.assign({}, scramble_333.scramblers, scramble_sq1.scramblers, scramble_222.scramblers, scramble_NNN.scramblers, scramble_minx.scramblers,
 	scramble_pyram.scramblers, scramble_clock.scramblers);
 
+const events = ['333','222','444','555','666','777','sq1','clock','pyram','minx'];
 
 var scramble333 = (callback) => {
 	callback(scramblers['333'].getRandomScramble());
@@ -50,15 +51,17 @@ var scrambleMinx = (callback) => {
 	callback(scramblers['minx'].getRandomScramble());
 }
 
+var initialize = () => {
+	for (var i = 0; i < events.length; i++) {
+		scramblers[events[i]].initialize();
+	}
+}
+
+var scramble = (event, callback) => {
+	callback(scramblers[event].getRandomScramble());
+}
+
 module.exports = {
-	scramble333: scramble333,
-	scramble222: scramble222,
-	scramble444: scramble444,
-	scramble555: scramble555,
-	scramble666: scramble666,
-	scramble777: scramble777,
-	scrambleSq1: scrambleSq1,
-	scrambleClock: scrambleClock,
-	scramblePyram: scramblePyram,
-	scrambleMinx: scrambleMinx,
+	scramble: scramble,
+	initialize: initialize,
 }
