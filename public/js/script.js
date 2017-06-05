@@ -24,6 +24,14 @@ var convTime = function(time) {
 	}
 }
 
+var prettify = function(time, penalty) {
+	if (penalty == 1) {
+		return convTime(time + 200) + "+";
+	} else if (penalty == 2) {
+		return "DNF(" + convTime(time) + ")";
+	} return convTime(time);
+}
+
 var updateTimer = function() {
 	var current = new Date();
 	TIME = Math.floor((current.getTime() - start.getTime()) / 10);
@@ -42,6 +50,7 @@ $(document).ready(function(){
 
 	$('#ready').submit(function() {
 		socket.emit('ready');
+		$('#ready').blur();
 		return false;
 	})
 	$('#chatform').submit(function() {
@@ -62,22 +71,29 @@ $(document).ready(function(){
 			$('#users').append($('<li>').append(userss[i].username));
 		}
 		$('#chat').append($('<li>').append(u + ' has joined the room.'))
-		$('#userTimes thead tr').append($('<th>').append(u));
+		$('#userTimes thead tr').append($('<th>').append(u))
+		$('#userTimes tbody tr').each(function() {
+			$(this).append($('<th>'));
+		})
 	})
 
-	socket.on('load page', function(times, newTimes, oldUsers) {
+	socket.on('load page', function(times, newTimes, newUsers) {
 		var userHeading = $('<tr>')
-		users = oldUsers;
-		for (var i = 0; i < users.length; i++) {
+		$('#newscramble').hide();
+		users = newUsers;
+		for (var i = 0; i < users.length - 1; i++) {
 			userHeading.append($('<th>').append(users[i].username));
 		}
 		$('#userTimes thead').append(userHeading);
 		for (var j = 0; j < times.length; j++) {
 			var thisRow = [];
-			for (var k = 0; k < times[j].length; k++) {
-				var userPos = users.indexOf(times[j][k].username);
-				if (userPos > 0) {
-					thisRow[userPos] = times[j][k].time;
+			for (var k = 0; k < Object.keys(times[j]).length; k++) {				
+				var userPos = -1;
+				for (var a = 0; a < users.length; a++) {
+					if (users[a].username == times[j][k].username)	userPos = a;
+				}
+				if (userPos >= 0) {
+					thisRow[userPos] = prettify(times[j][k].time, times[j][k].penalty);
 				}
 			}
 			var newRow = $('<tr>');
@@ -97,13 +113,12 @@ $(document).ready(function(){
 				position = i;
 			}
 		}
-		console.log(position);
 		users = userss;
 		for (var i = 0; i < userss.length; i++){
 			$('#users').append($('<li>').append(userss[i].username));
 		}
 		$('#chat').append($('<li>').append(u + ' has left the room.'))
-		$('#userTimes thead tr').each(function (index) {
+		$('#userTimes tr').each(function (index) {
 			$(this).find(':nth-child(' + (position + 1) + ')').remove()
 		})
 	})
@@ -116,6 +131,7 @@ $(document).ready(function(){
 		if (!hostAlready && newHost == username) {
 			$('#chat').append($('<li>').append('<i>You are now the new host of this room.</i>'))
 			hostAlready = true;
+			$('#newscramble').show();
 		}
 	})
 
@@ -125,21 +141,23 @@ $(document).ready(function(){
 		timeDetermined = false;
 	})
 
-	$(window).keypress(function(event){
+	$(window).keydown(function(event){
+		if(!timeDetermined && event.target.tagName.toLowerCase() !== 'input' && event.target.tagName.toLowerCase() !== 'button' && timerGoing) {
+			clearInterval(interval);
+			timerGoing = false;
+			time = TIME;
+			timeDetermined = true;
+			$('#choices').show();			
+		}
+	})
+
+	$(window).keyup(function(event) {
 		if(!timeDetermined && event.target.tagName.toLowerCase() !== 'input' && event.target.tagName.toLowerCase() !== 'button'){
-			if (timerGoing){
-				clearInterval(interval);
-				timerGoing = false;
-				time = TIME;
-				timeDetermined = true;
-				$('#choices').show();
-			} else {
-				if (event.keyCode == 32) {
-					TIME = 0; 
-					start = new Date();
-					interval = setInterval(updateTimer, 10);
-					timerGoing = true;
-				}
+			if(!timerGoing && event.keyCode == 32) {
+				TIME = 0; 
+				start = new Date();
+				interval = setInterval(updateTimer, 10);
+				timerGoing = true;
 			}
 		}
 	})
@@ -161,11 +179,22 @@ $(document).ready(function(){
 
 	socket.on('times', function (times) {
 		var newRow = $('<tr>');
-		for (var i = 0; i < times.length; i++) {
-			newRow.append($('<td>').append(times[i].time))
+		var userPos = -1;
+		
+		for (var a = 0; a < users.length; a++) {
+			for (var i = 0; i < times.length; i++) {
+				userPos = -1;
+				if (users[a].username === times[i].username) {
+					userPos = i;
+				}
+			}
+			if (userPos >= 0) {
+				newRow.append($('<td>').append(prettify(times[userPos].time, times[userPos].penalty)))
+			} else {
+				newRow.append($('<td>'))
+			}
 		}
 		$('#userTimes').append(newRow);
-		console.log(newRow);
 	})
 });
 

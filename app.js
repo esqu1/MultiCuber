@@ -211,13 +211,13 @@ nsp.on('connection', (socket) => {
 			getRoomInfo(roomID, (room1) => {
 				if (room1.users.length == 0) {
 					Room.addUserToRoom(roomID, username, (r) => {
-						socket.emit('load page', r.times, r.currentTime, room1.users);
+						socket.emit('load page', r.times, r.currentTime, r.users);
 						nsp.in(roomID).emit('user join', username, r.users);
 						socket.emit('new host', username);
 					})
 				} else {
 					Room.addUserToRoom(roomID, username, (r) => {
-						socket.emit('load page', r.times, r.currentTime, room1.users);
+						socket.emit('load page', r.times, r.currentTime, r.users);
 						nsp.in(roomID).emit('user join', username, r.users);
 					})
 				}
@@ -233,8 +233,17 @@ nsp.on('connection', (socket) => {
 			if (r.users.length == 0) {
 				//Room.deleteRoom(roomID, () => {});
 			} else {
-				nsp.in(roomID).emit('new host', r.users[0].username);
-				nsp.in(roomID).emit('user leave', username, r.users)
+				Room.decNumUsers(roomID, (r3) => { 
+					nsp.in(roomID).emit('new host', r.users[0].username);
+					nsp.in(roomID).emit('user leave', username, r.users);
+					console.log(r3.numUsers);
+					console.log(r3.currentTime.length);
+					if(r3.numUsers == r3.currentTime.length) {
+						Room.updateTimeDatabase(roomID, (r2) => {
+							nsp.in(roomID).emit('times', r.currentTime)
+						})
+					}
+				})
 			}
 		})
 	})
@@ -247,11 +256,19 @@ nsp.on('connection', (socket) => {
 	socket.on('ready', (host) => {
 		var scramble = 'F U\' B2 L U\' B\' D\' R2 F\' L2 U B\' R U L2 D2 B\' U D\' F2';
 		nsp.in(roomID).emit('new scramble', scramble)
+		Room.updateNumUsers(roomID, (r) => {
+			console.log(r);
+			if(r.currentTime.length != 0) {
+				Room.updateTimeDatabase(roomID, (r2) => {
+					nsp.in(roomID).emit('times', r.currentTime);
+				})
+			}
+		})
 	})
 
 	socket.on('new time', (username, time, penalty) => {
-		Room.addTimeToRoom(roomID, username, time, penalty, (r) => {
-			if(r.users.length == r.currentTime.length) {
+		Room.addTimeToRoom(roomID, username, time, penalty, (r) => { 
+			if(r.numUsers == r.currentTime.length) {
 				Room.updateTimeDatabase(roomID, (r2) => {
 					nsp.in(roomID).emit('times', r.currentTime)
 				})
