@@ -48,6 +48,10 @@ $(document).ready(function(){
 		$('#myInput').focus()
 	}) // Bootstrap JS code
 
+	$('#passwordModal').on('shown.bs.modal', function () {
+		$('')
+	})
+
 	$('#ready').submit(function() {
 		socket.emit('ready');
 		$('#ready').blur();
@@ -179,13 +183,14 @@ $(document).ready(function(){
 
 	socket.on('times', function (times) {
 		var newRow = $('<tr>');
-		var userPos = -1;
-		
+		var userPos = -1;		
+
 		for (var a = 0; a < users.length; a++) {
 			for (var i = 0; i < times.length; i++) {
 				userPos = -1;
 				if (users[a].username === times[i].username) {
 					userPos = i;
+					break;
 				}
 			}
 			if (userPos >= 0) {

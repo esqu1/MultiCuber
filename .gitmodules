@@ -1,0 +1,6 @@
+[submodule "assets/jsss"]
+	path = assets/jsss
+	url = https://github.com/esqu1/jsss
+[submodule "public/jsss"]
+	path = public/jsss
+	url = https://github.com/cubing/jsss
