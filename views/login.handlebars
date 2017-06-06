@@ -1,12 +1,22 @@
 <h2 class="page-header">Account Login</h2>
-<form method="post" action="/users/login">
-  <div class="form-group">
-    <label>Username</label>
-    <input type="text" class="form-control" name="username" placeholder="Username">
-  </div>
-  <div class="form-group">
-    <label>Password</label>
-    <input type="password" class="form-control" name="password" placeholder="Password">
-  </div>
-  <button type="submit" class="btn btn-default">Submit</button>
+<form class="ui form login" method="post" action="/users/login">
+	<div class="field">
+		<label>Username</label>
+		<input type="text" class="form-control" name="username" placeholder="Username">
+	</div>
+	<div class="field">
+		<label>Password</label>
+		<input type="password" class="form-control" name="password" placeholder="Password">
+	</div>
+	<button type="submit" class="ui button">Submit</button>
+	<div class="ui error message"></div>
 </form>
+
+<script type="text/javascript">
+	$('.ui.form.login').form({
+		fields: {
+			username : 'empty',
+			password : 'empty',
+		}
+	});
+</script>

@@ -73,11 +73,16 @@ var ensurePassword = (req, res, next) => {
 	});
 }
 
-
+var hbs = exphbs.create({
+	defaultLayout: 'layout',
+	helpers: {
+		reverse: function(arr) {arr.reverse();},
+	}	
+})
 
 // View Engine
 app.set('views', path.join(__dirname, 'views'));
-app.engine('handlebars', exphbs({defaultLayout: 'layout'}));
+app.engine('handlebars', hbs.engine);
 app.set('view engine', 'handlebars');
 
 // Body Parser
@@ -153,6 +158,7 @@ app.use((req, res, next) => {
 	res.locals.user = req.user || null;
 	next();
 })
+
 
 //app.use('/', routes);
 app.use('/users', users);

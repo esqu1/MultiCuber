@@ -1,29 +1,42 @@
 <h2 class="page-header">Register</h2>
 {{#if errors}}
-      {{#each errors}}
-        <div class="alert alert-danger">{{msg}}</div>
-      {{/each}}
+{{#each errors}}
+<div class="ui negative message">{{msg}}</div>
+{{/each}}
 {{/if}}
-<form method="post" action="/users/register">
-   <div class="form-group">
-    <label>Name</label>
-    <input type="text" class="form-control" placeholder="Name" name="name">
-  </div>
-  <div class="form-group">
-    <label>Username</label>
-    <input type="text" class="form-control" placeholder="Username" name="username">
-  </div>
-   <div class="form-group">
-    <label>Email</label>
-    <input type="email" class="form-control" placeholder="Email" name="email">
-  </div>
-  <div class="form-group">
-    <label>Password</label>
-    <input type="password" class="form-control" placeholder="Password" name="password">
-  </div>
-  <div class="form-group">
-    <label>Confirm Password</label>
-    <input type="password" class="form-control" placeholder="Password" name="password2">
-  </div>
-  <button type="submit" class="btn btn-default">Submit</button>
+<form class="ui form register" method="post" action="/users/register">
+	<div class="field">
+		<label>Name</label>
+		<input type="text" class="form-control" placeholder="Name" name="name">
+	</div>
+	<div class="field">
+		<label>Username</label>
+		<input type="text" class="form-control" placeholder="Username" name="username">
+	</div>
+	<div class="field">
+		<label>Email</label>
+		<input type="email" class="form-control" placeholder="Email" name="email">
+	</div>
+	<div class="field">
+		<label>Password</label>
+		<input type="password" class="form-control" placeholder="Password" name="password">
+	</div>
+	<div class="field">
+		<label>Confirm Password</label>
+		<input type="password" class="form-control" placeholder="Password" name="password2">
+	</div>
+	<button class="ui button" type="submit">Submit</button>
+	<div class="ui error message"></div>
 </form>
+
+<script type="text/javascript">
+	$('.ui.form.register').form({
+		fields: {
+			name     : 'empty',
+			username : 'empty',
+			email 	 : 'empty',
+			password : ['minLength[10]', 'empty'],
+			password2: ['match[password]', 'empty']
+		}
+	});
+</script>
