@@ -1,0 +1,41 @@
+#chatColumn {
+	height: 250px;
+	overflow: scroll;
+	overflow-x: hidden;
+}
+
+#central .row:nth-child(1) {
+	height: 250px;
+}
+
+#central .row:nth-child(2) {
+	height: 80px;
+}
+
+#timerColumn {
+	height: 250px;
+}
+
+.eleven.wide > .header {
+	position: absolute;
+	vertical-align: middle;
+	text-align: center;
+	width: 100%;
+}
+
+.eleven.wide > #choices {
+	position: relative;
+	bottom: 0;
+}
+
+.eleven.wide > #scramble {
+	display: inline;
+	position: absolute;
+	text-align: center;
+	z-index: 0;
+}
+
+.eleven.wide > #newscramble {
+	float: left;
+	z-index: 1;
+}

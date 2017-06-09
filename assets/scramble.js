@@ -58,6 +58,8 @@ var initialize = () => {
 }
 
 var scramble = (event, callback) => {
+	console.log(scramblers);
+	console.log(event);
 	callback(scramblers[event].getRandomScramble());
 }
 

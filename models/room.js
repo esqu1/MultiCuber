@@ -37,6 +37,13 @@ module.exports.createRoom = (newRoom, callback) => {
 	}
 }
 
+module.exports.comparePassword = (candidatePassword, hash, callback) => {
+	bcrypt.compare(candidatePassword, hash, (err, isMatch) => {
+    	if(err) throw err;
+    	callback(null, isMatch);
+	});
+}
+
 module.exports.deleteRoom = (roomID, callback) => {
 	Room.remove({_id : mongo.ObjectID(roomID.toString())}, (err) => {
 		if (err) throw err;
@@ -48,6 +55,14 @@ module.exports.getAllRooms = (query, callback) => {
 	Room.find(query, {name: 1, event: 1, users: 1, _id: 1, password: 1}, (err, docs) => {
 		if (err) throw err;
 		callback(docs);
+	})
+}
+
+module.exports.getRoomByID = (roomID, callback) => {
+	var query = {_id : mongo.ObjectID(roomID.toString())}
+	Room.findOne(query, (err, doc) => {
+		if (err) throw err;
+		callback(doc);
 	})
 }
 

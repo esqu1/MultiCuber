@@ -11,8 +11,8 @@
 <div class="ui segment" id="cards">
 	<div class="ui right rail">
 		<div class="ui sticky">
-			<div class="ui dropdown">
-				<div class="text">Events</div>
+			<div class="ui dropdown" id="select">
+				<div class="text" data-value="333">Rubik's Cube</div>
 				<i class="dropdown icon"></i>
 				<div class="menu">
 					<div class="item" data-value="333">Rubik's Cube</div>
@@ -35,7 +35,7 @@
 	<div class="ui centered link cards">
 		{{#each rooms}}
 		{{#if password}}
-		<div class="ui card {{event}}">
+		<div class="card {{event}}">
 			<div class="image">
 				<img src="https://semantic-ui.com/images/wireframe/image.png">
 			</div>
@@ -43,10 +43,13 @@
 				<a class="header">{{name}}</a>
 				<div class="meta">{{event}}</div>
 			</div>
+			<div class="ui bottom attached button" onClick="$('#passwordNeeded').modal('show'); $('#passwordNeeded form').append('<div>').addClass('field').append('<input type=\'hidden\' name=\'id\' value=\'{{_id}}\'>')">
+				<i class="add icon"></i>
+				Join Room
+			</div>
 		</div>
-		<!-- <li><a class="pass" onClick="$('#passwordNeeded').modal('show');" href="#"><b>{{name}}</b>: {{event}}</a></li>	 -->
 		{{else}}
-		<div class="ui card {{event}}">
+		<div class="card {{event}}">
 			<div class="image">
 				<img src="https://semantic-ui.com/images/wireframe/image.png">
 			</div>
@@ -54,8 +57,14 @@
 				<a class="header">{{name}}</a>
 				<div class="meta">{{event}}</div>
 			</div>
+			<form action="/rooms/pass" method="post">
+			<input type='hidden' name='id' value='{{_id}}'>
+			<div class="ui bottom attached button" onClick="this.parentNode.submit()">
+				<i class="add icon"></i>
+				Join Room
+			</div>
+			</form>
 		</div>
-		<!-- <li><a href="/rooms/play/?id={{_id}}"><b>{{name}}</b>: {{event}}</a></li> -->
 		{{/if}}
 		{{/each}}
 	</div>
@@ -78,14 +87,13 @@
 		Password required
 	</div>
 	<div class="content">
-		<form class="ui form passneeded" method="post" action="/rooms">
-
+		<form class="ui form passneeded" method="post" action="/rooms/pass/">
 			<div class="field">
 				This room requires a password to enter.
 			</div>
 			<div class="field">
 				<label>Password</label>
-				<input type="password" class="form-control" name="name" placeholder="Name">
+				<input type="password" class="form-control" name="password" placeholder="Name">
 			</div>
 			<button type="submit" class="ui button">Submit</button>
 			<div class="ui error message"></div>
@@ -107,20 +115,25 @@
 			</div>
 			<div class="field">
 				<label>Event</label>
-				<select class="form-control" name="event" form="newroom">
-					<option value="333">Rubik's Cube</option>
-					<option value="222">2x2x2 Cube</option>
-					<option value="444">4x4x4 Cube</option>
-					<option value="555">5x5x5 Cube</option>
-					<option value="666">6x6x6 Cube</option>
-					<option value="777">7x7x7 Cube</option>
-					<option value="333oh">3x3 One-Handed</option>
-					<option value="333bf">3x3 Blindfolded</option>
-					<option value="pyram">Pyraminx</option>
-					<option value="sq1">Square-1</option>
-					<option value="minx">Megaminx</option>
-					<option value="skewb">Skewb</option>
-					<option value="clock">Rubik's Clock</option>
+				<div class="ui selection dropdown" name="event" form="newroom">
+					<input type="hidden" name="event">
+					<div class="default text">Select</div>
+					<i class="dropdown icon"></i>
+					<div class="menu">
+						<div class="item" data-value="333">Rubik's Cube</div>
+						<div class="item" data-value="222">2x2x2 Cube</div>
+						<div class="item" data-value="444">4x4x4 Cube</div>
+						<div class="item" data-value="555">5x5x5 Cube</div>
+						<div class="item" data-value="666">6x6x6 Cube</div>
+						<div class="item" data-value="777">7x7x7 Cube</div>
+						<div class="item" data-value="333oh">3x3 One-Handed</div>
+						<div class="item" data-value="333bf">3x3 Blindfolded</div>
+						<div class="item" data-value="pyram">Pyraminx</div>
+						<div class="item" data-value="sq1">Square-1</div>
+						<div class="item" data-value="minx">Megaminx</div>
+						<div class="item" data-value="skewb">Skewb</div>
+						<div class="item" data-value="clock">Rubik's Clock</div>
+					</div>
 				</select>
 			</div>
 			<div class="field">
@@ -135,6 +148,7 @@
 
 <script type="text/javascript">
 	$('.card').hide();
+	$('.card.333').show();
 	$('.ui.form.passneeded').form({
 		fields: {
 			password : 'empty',
@@ -145,7 +159,8 @@
 			name 	 : 'empty',
 		}
 	});
-	$('.ui.dropdown').dropdown({
+	$('.ui.dropdown').dropdown();
+	$('#select').dropdown({
 		onChange: function(value, text, $choice) {
 			$('.card').hide();
 			$('.card.' + value).show();
@@ -154,4 +169,5 @@
 	$('.ui.sticky').sticky({
 		context: "#cards"
 	})
+
 </script>

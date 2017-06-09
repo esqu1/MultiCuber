@@ -32,11 +32,25 @@ var prettify = function(time, penalty) {
 	} return convTime(time);
 }
 
+var trueTime = function(timeObj) {
+	if(timeObj.penalty == 1) {
+		return timeObj.time + 200;
+	} else if (timeObj.penalty == 2) {
+		return Number.MAX_VALUE;
+	} return timeObj.time;
+}
+
 var updateTimer = function() {
 	var current = new Date();
 	TIME = Math.floor((current.getTime() - start.getTime()) / 10);
 	$('#timer').text(convTime(TIME));
 }
+
+var updateScroll = function(){
+	var element = document.getElementById("chatColumn");
+	element.scrollTop = element.scrollHeight;
+}
+
 
 $(document).ready(function(){
 	$('#choices').hide();
@@ -57,6 +71,7 @@ $(document).ready(function(){
 		$('#ready').blur();
 		return false;
 	})
+
 	$('#chatform').submit(function() {
 		if ($('#msg').val() != ''){
 			socket.emit('chat message', [$('#room').val(), username, $('#msg').val()]);
@@ -64,30 +79,32 @@ $(document).ready(function(){
 		}
 		return false;
 	})
+
 	socket.on('chat', function(username, msg) {
-		$('#chat').append($('<li>').append('<b>' + username + '</b>: ' + msg.replace(/</g, "&lt;").replace(/>/g, "&gt;")));
+		$('<div>').hide().
+		append('<b>' + username + '</b>: ' + msg.replace(/</g, "&lt;").replace(/>/g, "&gt;"))
+		.addClass('item').appendTo('#chat').fadeIn(300);
+		updateScroll();
 	});
 
 	socket.on('user join', function(u, userss) {
-		$('#users').empty();
-		users = userss;
-		for (var i = 0; i < userss.length; i++){
-			$('#users').append($('<li>').append(userss[i].username));
-		}
-		$('#chat').append($('<li>').append(u + ' has joined the room.'))
+		$('#chat').append($('<div>').append(u + ' has joined the room.').addClass('item'))
 		$('#userTimes thead tr').append($('<th>').append(u))
 		$('#userTimes tbody tr').each(function() {
-			$(this).append($('<th>'));
+			$(this).append($('<td>'));
 		})
+		updateScroll();
 	})
 
 	socket.on('load page', function(times, newTimes, newUsers) {
 		var userHeading = $('<tr>')
 		$('#newscramble').hide();
 		users = newUsers;
+		console.log(users);
 		for (var i = 0; i < users.length - 1; i++) {
 			userHeading.append($('<th>').append(users[i].username));
 		}
+		console.log(userHeading)
 		$('#userTimes thead').append(userHeading);
 		for (var j = 0; j < times.length; j++) {
 			var thisRow = [];
@@ -107,7 +124,9 @@ $(document).ready(function(){
 			}
 			$('#userTimes tbody').append(newRow);
 		}
-	})
+
+	//$('#userTimes').DataTable();
+})
 
 	socket.on('user leave', function(u, userss) {
 		$('#users').empty();
@@ -122,6 +141,7 @@ $(document).ready(function(){
 			$('#users').append($('<li>').append(userss[i].username));
 		}
 		$('#chat').append($('<li>').append(u + ' has left the room.'))
+		updateScroll();
 		$('#userTimes tr').each(function (index) {
 			$(this).find(':nth-child(' + (position + 1) + ')').remove()
 		})
@@ -141,7 +161,9 @@ $(document).ready(function(){
 
 	socket.on('new scramble', function(scr) {
 		$('#chat').append($('<li>').append('<i>New scramble!</i>'));
+		updateScroll();
 		$('#scramble').text(scr);
+		$('#newscramble').addClass('disabled');
 		timeDetermined = false;
 	})
 
@@ -169,21 +191,30 @@ $(document).ready(function(){
 	$('#nopenalty').click(function () {		
 		$('#choices').hide();
 		socket.emit('new time', username, time, 0);
+		$('#newscramble').removeClass('disabled')
 	})
 
 	$('#plus2').click(function () {		
 		$('#choices').hide();
 		socket.emit('new time', username, time, 1);
+		$('#newscramble').removeClass('disabled')
 	})
 
 	$('#dnf').click(function () {		
 		$('#choices').hide();
 		socket.emit('new time', username, time, 2);
+		$('#newscramble').removeClass('disabled')
 	})
 
 	socket.on('times', function (times) {
 		var newRow = $('<tr>');
-		var userPos = -1;		
+		var userPos = -1;
+		var minPos = -1, min = Number.MAX_VALUE;
+		for (var i = 0; i < times.length; i++) {
+			if (trueTime(times[i]) < min) {
+				minPos = i;
+			}
+		}
 
 		for (var a = 0; a < users.length; a++) {
 			for (var i = 0; i < times.length; i++) {
@@ -194,7 +225,11 @@ $(document).ready(function(){
 				}
 			}
 			if (userPos >= 0) {
-				newRow.append($('<td>').append(prettify(times[userPos].time, times[userPos].penalty)))
+				if (userPos == minPos) {
+					newRow.append($('<td>').append(prettify(times[userPos].time, times[userPos].penalty)).addClass("positive"));
+				} else {
+					newRow.append($('<td>').append(prettify(times[userPos].time, times[userPos].penalty)));
+				}
 			} else {
 				newRow.append($('<td>'))
 			}
