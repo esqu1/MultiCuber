@@ -1,3 +1,8 @@
+.ui.secondary.menu {
+	padding-left: 12em;
+	padding-right: 12em;
+}
+
 #chatColumn {
 	height: 250px;
 	overflow: scroll;
@@ -9,7 +14,7 @@
 }
 
 #central .row:nth-child(2) {
-	height: 80px;
+	height: 110px;
 }
 
 #timerColumn {
@@ -25,17 +30,19 @@
 
 .eleven.wide > #choices {
 	position: relative;
+	top: 90%;
+	text-align: center;
 	bottom: 0;
 }
 
 .eleven.wide > #scramble {
-	display: inline;
-	position: absolute;
+	display: inline-block;
 	text-align: center;
-	z-index: 0;
 }
 
-.eleven.wide > #newscramble {
+.three.wide > #newscramble {
 	float: left;
+	display: inline-block;
 	z-index: 1;
+	width: 100%;
 }

@@ -162,18 +162,23 @@ $(document).ready(function(){
 	socket.on('new scramble', function(scr) {
 		$('#chat').append($('<li>').append('<i>New scramble!</i>'));
 		updateScroll();
-		$('#scramble').text(scr);
+		$('#scramble').text(scr.replace(/<br>/g,' '));
 		$('#newscramble').addClass('disabled');
 		timeDetermined = false;
 	})
 
 	$(window).keydown(function(event){
-		if(!timeDetermined && event.target.tagName.toLowerCase() !== 'input' && event.target.tagName.toLowerCase() !== 'button' && timerGoing) {
-			clearInterval(interval);
-			timerGoing = false;
-			time = TIME;
-			timeDetermined = true;
-			$('#choices').show();			
+		if(!timeDetermined && event.target.tagName.toLowerCase() !== 'input' && event.target.tagName.toLowerCase() !== 'button') {
+			if (timerGoing) {
+				clearInterval(interval);
+				timerGoing = false;
+				time = TIME;
+				timeDetermined = true;
+				$('#choices').show();	
+			}
+			if (event.keyCode == 32) {
+				return false;
+			}
 		}
 	})
 
@@ -184,6 +189,7 @@ $(document).ready(function(){
 				start = new Date();
 				interval = setInterval(updateTimer, 10);
 				timerGoing = true;
+				return false;
 			}
 		}
 	})

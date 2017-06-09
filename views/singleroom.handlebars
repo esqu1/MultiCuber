@@ -3,7 +3,6 @@
 <div class="ui equal height celled grid" id="central">
 	<div class="row">
 		<div class="eleven wide column">
-			<div id='scramble'><br></div>
 			<div class="ui huge header" id='timer' style="font-size: 12em">0.00</div>
 			<div id='choices'><a id='nopenalty' href='#'>No Penalty</a> | <a id='plus2' href='#'>+2</a> | <a id='dnf' href='#'>DNF</a></div>
 		</div>
@@ -12,10 +11,11 @@
 		</div>
 	</div>
 	<div class="row">
-		<div class="eleven wide column">
+		<div class="three wide column">
 			<form id='ready'>
-				<button id='newscramble' class='ui button' onClick="this.blur();">New Scramble</button>
-			</form>
+				<button id='newscramble' class='fluid ui button' onClick="this.blur();">New Scramble</button>
+			</form>		</div><div class="eight wide column">	
+			<div id='scramble'><br></div>
 		</div>
 		<div class="five wide column">
 			<form class="ui form" id="chatform">
@@ -24,9 +24,9 @@
 						<input type="hidden" id="room" value="{{id}}"></input>
 					</div>
 					<div class="field">
-						<input class="form-control" type="text" id="msg" autocomplete="off" placeholder="Write your message here...">
+						<input type="text" id="msg" autocomplete="off" placeholder="Write your message here...">
 					</div>
-					<button class="ui button">Send</button>	
+					<button class="fluid ui button">Send</button>	
 				</div>
 			</form>
 		</div>
