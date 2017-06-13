@@ -1,6 +1,16 @@
+body {
+	display: flex;
+	min-height: 100vh;
+	flex-direction: column;
+}
+
+.ui.container {
+	flex: 1;
+}
 .ui.secondary.menu {
-	padding-left: 12em;
-	padding-right: 12em;
+	padding-left: 20%;
+	padding-right: 20%;
+	font-size: 1.3rem;
 }
 
 #chatColumn {
@@ -9,12 +19,20 @@
 	overflow-x: hidden;
 }
 
+#timeColumn {
+	overflow: scroll;
+}
+
 #central .row:nth-child(1) {
 	height: 250px;
 }
 
 #central .row:nth-child(2) {
 	height: 110px;
+}
+
+#central .row:nth-child(3) {
+	height: 400px;
 }
 
 #timerColumn {
