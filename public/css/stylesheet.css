@@ -1,0 +1,66 @@
+body {
+	display: flex;
+	min-height: 100vh;
+	flex-direction: column;
+}
+
+.ui.container {
+	flex: 1;
+}
+.ui.secondary.menu {
+	padding-left: 20%;
+	padding-right: 20%;
+	font-size: 1.3rem;
+}
+
+#chatColumn {
+	height: 250px;
+	overflow: scroll;
+	overflow-x: hidden;
+}
+
+#timeColumn {
+	overflow: scroll;
+}
+
+#central .row:nth-child(1) {
+	height: 250px;
+}
+
+#central .row:nth-child(2) {
+	height: 110px;
+}
+
+#central .row:nth-child(3) {
+	height: 400px;
+}
+
+#timerColumn {
+	height: 250px;
+}
+
+.eleven.wide > .header {
+	position: absolute;
+	vertical-align: middle;
+	text-align: center;
+	width: 100%;
+}
+
+.eleven.wide > #choices {
+	position: relative;
+	top: 90%;
+	text-align: center;
+	bottom: 0;
+}
+
+.eleven.wide > #scramble {
+	display: inline-block;
+	text-align: center;
+}
+
+.three.wide > #newscramble {
+	float: left;
+	display: inline-block;
+	z-index: 1;
+	width: 100%;
+}

@@ -61,23 +61,44 @@ var ensureValidRoom = (req, res, next) => {
 	
 }
 
-var ensurePassword = (req, res, next) => {
-	getRoomInfo(req.query.id, (room) => {
-		if (!(room.password == '')) {
-			req.flash('error_msg', 'This room requires a password in order to join.');
-			req.flash('password', 'blah');
-			res.redirect('/rooms/locked?id=' + req.query.id);
+var checkPassword = (req, res, next) => {
+	Room.getRoomByID(req.body.id, (room) => {
+		if (room.password != '') {
+			console.log(req.body);
+			Room.comparePassword(req.body.password, room.password, (err, isMatch) => {
+				if (err) throw err;
+				if (isMatch) {
+					next();
+				} else {
+					req.flash('error_msg', 'Incorrect password.');
+					res.redirect('/rooms/');
+				}
+			})
 		} else {
-			return next();
+			next();
 		}
-	});
+	})
 }
 
+var checkPassed = (req, res, next) => {
+	if (req.session['passed']) {
+		next();
+	} else {
+		req.flash('error_msg', 'Password invalid.');
+		res.redirect('/rooms/')
+	}
+}
 
+var hbs = exphbs.create({
+	defaultLayout: 'layout',
+	helpers: {
+		reverse: function(arr) {arr.reverse();},
+	}	
+})
 
 // View Engine
 app.set('views', path.join(__dirname, 'views'));
-app.engine('handlebars', exphbs({defaultLayout: 'layout'}));
+app.engine('handlebars', hbs.engine);
 app.set('view engine', 'handlebars');
 
 // Body Parser
@@ -154,6 +175,7 @@ app.use((req, res, next) => {
 	next();
 })
 
+
 //app.use('/', routes);
 app.use('/users', users);
 
@@ -162,6 +184,7 @@ app.get('/', (req, res) => {
 })
 
 app.get('/rooms', ensureAuthenticated, (req, res) => {
+	req.session['passed'] = false;
 	Room.getAllRooms({}, (r) => {
 		res.render('rooms', {rooms: r});
 	})
@@ -193,6 +216,7 @@ app.post('/rooms', (req, res) => {
 		Room.createRoom(newRoom, (err, room) => {
 			if (err) throw err;
 			var id = room._id.valueOf();
+			req.session['passed'] = true;
 			res.redirect('/rooms/play/?id=' + id);
 		})
 	}
@@ -238,8 +262,6 @@ nsp.on('connection', (socket) => {
 				Room.decNumUsers(roomID, (r3) => { 
 					nsp.in(roomID).emit('new host', r.users[0].username);
 					nsp.in(roomID).emit('user leave', username, r.users);
-					console.log(r3.numUsers);
-					console.log(r3.currentTime.length);
 					if(r3.numUsers == r3.currentTime.length) {
 						Room.updateTimeDatabase(roomID, (r2) => {
 							nsp.in(roomID).emit('times', r.currentTime)
@@ -259,7 +281,6 @@ nsp.on('connection', (socket) => {
 		scramble.scramble(event, (s) => {
 			nsp.in(roomID).emit('new scramble', s.scramble_string)
 			Room.updateNumUsers(roomID, (r) => {
-				console.log(r);
 				if(r.currentTime.length != 0) {
 					Room.updateTimeDatabase(roomID, (r2) => {
 						nsp.in(roomID).emit('times', r.currentTime);
@@ -281,7 +302,7 @@ nsp.on('connection', (socket) => {
 	})
 })
 
-app.get('/rooms/play/', ensureAuthenticated, ensureValidRoom, ensurePassword, (req, res) => {
+app.get('/rooms/play/', ensureAuthenticated, ensureValidRoom, checkPassed, (req, res) => {
 	var id = req.query.id;
 	Room.getAllRooms({_id: mongo.ObjectID(id.toString()), 'users.username': req.user.username}, (rooms) => {
 		if (rooms.length == 0) {
@@ -296,8 +317,9 @@ app.get('/rooms/play/', ensureAuthenticated, ensureValidRoom, ensurePassword, (r
 	})
 })
 
-app.get('/rooms/locked', (req, res) => {
-	res.render('rooms')
+app.post('/rooms/pass/', checkPassword, (req, res) => {
+	req.session['passed'] = true;
+	res.redirect('/rooms/play/?id=' + req.body.id)
 })
 
 app.get('/api/user_data', function(req, res) {

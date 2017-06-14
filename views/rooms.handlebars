@@ -1,92 +1,173 @@
 {{#if errors}}
-      {{#each errors}}
-        <div class="alert alert-danger">{{msg}}</div>
-      {{/each}}
+{{#each errors}}
+<div class="ui negative message">{{msg}}</div>
+{{/each}}
 {{/if}}
-here are the rooms<br>
 
-<ol>
 {{#if rooms}}
-	{{#each rooms}}
-		{{#if password}}
-		<li><a href="/rooms/play/?id={{_id}}"><b>{{name}}</b>: {{event}}</a></li>
-		{{else}}
-		<li><a class="pass" data-target="#passwordModal" href="/rooms/play/?id={{_id}}"><b>{{name}}</b>: {{event}}</a></li>
-		{{/if}}
-	{{/each}}
-{{/if}}
-</ol>
+{{reverse rooms}}
 
-<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
+
+<div class="ui segment" id="cards">
+	<div class="ui right rail">
+		<div class="ui sticky">
+			<div class="ui dropdown" id="select">
+				<div class="text" data-value="333">Rubik's Cube</div>
+				<i class="dropdown icon"></i>
+				<div class="menu">
+					<div class="item" data-value="333">Rubik's Cube</div>
+					<div class="item" data-value="222">2x2 Cube</div>
+					<div class="item" data-value="444">4x4 Cube</div>
+					<div class="item" data-value="555">5x5 Cube</div>
+					<div class="item" data-value="666">6x6 Cube</div>
+					<div class="item" data-value="777">7x7 Cube</div>
+					<div class="item" data-value="minx">Megaminx</div>
+					<div class="item" data-value="pyram">Pyraminx</div>
+					<div class="item" data-value="sq1">Square-1</div>
+					<div class="item" data-value="clock">Rubik's Clock</div>
+					<div class="item" data-value="333bf">3x3 Blindfolded</div>
+					<div class="item" data-value="444bf">4x4 Blindfolded</div>
+					<div class="item" data-value="555bf">5x5 Blindfolded</div>
+				</div>	 
+			</div>
+		</div>
+	</div>
+	<div class="ui centered link cards">
+		{{#each rooms}}
+		{{#if password}}
+		<div class="card {{event}}">
+			<div class="image">
+				<img src="https://semantic-ui.com/images/wireframe/image.png">
+			</div>
+			<div class="content">
+				<a class="header">{{name}}</a>
+				<div class="meta">{{event}}</div>
+			</div>
+			<div class="ui bottom attached button" onClick="$('#passwordNeeded').modal('show'); $('#passwordNeeded form').append('<div>').addClass('field').append('<input type=\'hidden\' name=\'id\' value=\'{{_id}}\'>')">
+				<i class="add icon"></i>
+				Join Room
+			</div>
+		</div>
+		{{else}}
+		<div class="card {{event}}">
+			<div class="image">
+				<img src="https://semantic-ui.com/images/wireframe/image.png">
+			</div>
+			<div class="content">
+				<a class="header">{{name}}</a>
+				<div class="meta">{{event}}</div>
+			</div>
+			<form action="/rooms/pass" method="post">
+			<input type='hidden' name='id' value='{{_id}}'>
+			<div class="ui bottom attached button" onClick="this.parentNode.submit()">
+				<i class="add icon"></i>
+				Join Room
+			</div>
+			</form>
+		</div>
+		{{/if}}
+		{{/each}}
+	</div>
+</div>
+{{/if}}
+
+
+
+<div id="listOfRooms"></div>
+
+<button type="button" class="ui button" onClick="$('#newRoom').modal('show')">
 	New room
 </button>
 
 
-<div class="modal fade" id="passwordModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-	<div class="modal-dialog" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title" id="myModalLabel">Modal title</h4>
+
+<div class="ui modal" id="passwordNeeded">
+	<i class="close icon"></i>
+	<div class="header">
+		Password required
+	</div>
+	<div class="content">
+		<form class="ui form passneeded" method="post" action="/rooms/pass/">
+			<div class="field">
+				This room requires a password to enter.
 			</div>
-			<div class="modal-body">
-				<form method="post" action="/rooms" id="newroom">
-					This room requires a password in order to enter.
-					<div class="form-group">
-						<label>Password</label>
-						<input type="password" class="form-control" name="name" placeholder="Name">
-					</div>
-					<button type="submit" class="btn btn-default">Submit</button>
-					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-				</form>
+			<div class="field">
+				<label>Password</label>
+				<input type="password" class="form-control" name="password" placeholder="Name">
 			</div>
-			<div class="modal-footer">
-				
-			</div>
-		</div>
+			<button type="submit" class="ui button">Submit</button>
+			<div class="ui error message"></div>
+		</form>
 	</div>
 </div>
 
 <!-- Modal -->
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-	<div class="modal-dialog" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title" id="myModalLabel">Modal title</h4>
+<div class="ui modal" id="newRoom">
+	<i class="close icon"></i>
+	<div class="header">
+		Create a new room
+	</div>
+	<div class="content">
+		<form class="ui form newroom" method="post" action="/rooms">
+			<div class="field">
+				<label>Room Name</label>
+				<input type="text" class="form-control" name="name" placeholder="Name">
 			</div>
-			<div class="modal-body">
-				<form method="post" action="/rooms" id="newroom">
-					<div class="form-group">
-						<label>Room Name</label>
-						<input type="text" class="form-control" name="name" placeholder="Name">
+			<div class="field">
+				<label>Event</label>
+				<div class="ui selection dropdown" name="event" form="newroom">
+					<input type="hidden" name="event">
+					<div class="default text">Select</div>
+					<i class="dropdown icon"></i>
+					<div class="menu">
+						<div class="item" data-value="333">Rubik's Cube</div>
+						<div class="item" data-value="222">2x2x2 Cube</div>
+						<div class="item" data-value="444">4x4x4 Cube</div>
+						<div class="item" data-value="555">5x5x5 Cube</div>
+						<div class="item" data-value="666">6x6x6 Cube</div>
+						<div class="item" data-value="777">7x7x7 Cube</div>
+						<div class="item" data-value="333oh">3x3 One-Handed</div>
+						<div class="item" data-value="333bf">3x3 Blindfolded</div>
+						<div class="item" data-value="pyram">Pyraminx</div>
+						<div class="item" data-value="sq1">Square-1</div>
+						<div class="item" data-value="minx">Megaminx</div>
+						<div class="item" data-value="skewb">Skewb</div>
+						<div class="item" data-value="clock">Rubik's Clock</div>
 					</div>
-					<div class="form-group">
-						<label>Event</label>
-						<select class="form-control" name="event" form="newroom">
-							<option value="333">Rubik's Cube</option>
-							<option value="222">2x2x2 Cube</option>
-							<option value="444">4x4x4 Cube</option>
-							<option value="555">5x5x5 Cube</option>
-							<option value="666">6x6x6 Cube</option>
-							<option value="777">7x7x7 Cube</option>
-							<option value="333oh">3x3 One-Handed</option>
-							<option value="333bf">3x3 Blindfolded</option>
-							<option value="pyram">Pyraminx</option>
-							<option value="sq1">Square-1</option>
-							<option value="minx">Megaminx</option>
-							<option value="skewb">Skewb</option>
-							<option value="clock">Rubik's Clock</option>
-						</select>
-					</div>
-					<div class="form-group">
-						<label>Password (Optional)</label>
-						<input type="password" class="form-control" name="password" placeholder="Password">
-					</div>
-					<button type="submit" class="btn btn-primary">Submit</button>
-					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-				</form>
+				</select>
 			</div>
-		</div>
+			<div class="field">
+				<label>Password (Optional)</label>
+				<input type="password" class="form-control" name="password" placeholder="Password">
+			</div>
+			<button type="submit" class="ui button">Submit</button>
+			<div class="ui error message"></div>
+		</form>
 	</div>
 </div>
+
+<script type="text/javascript">
+	$('.card').hide();
+	$('.card.333').show();
+	$('.ui.form.passneeded').form({
+		fields: {
+			password : 'empty',
+		}
+	});
+	$('.ui.form.newroom').form({
+		fields: {
+			name 	 : 'empty',
+		}
+	});
+	$('.ui.dropdown').dropdown();
+	$('#select').dropdown({
+		onChange: function(value, text, $choice) {
+			$('.card').hide();
+			$('.card.' + value).show();
+		}
+	});
+	$('.ui.sticky').sticky({
+		context: "#cards"
+	})
+
+</script>
